@@ -1,0 +1,47 @@
+[gd_scene load_steps=4 format=3 uid="uid://d1s4f151qyvjh"]
+
+[ext_resource type="Texture2D" uid="uid://dpovclc3gpva4" path="res://assets/unit/soldier1_gun.png" id="1_bk5qa"]
+[ext_resource type="Script" path="res://scenes/unit/unit.gd" id="1_htrur"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_jj68h"]
+radius = 20.0
+
+[node name="Unit" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_htrur")
+MASS = 30
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_bk5qa")
+offset = Vector2(10, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_jj68h")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+path_desired_distance = 30.0
+target_desired_distance = 50.0
+debug_enabled = true
+
+[node name="EnemyDetect" type="Node2D" parent="."]
+
+[node name="DetectRayCast" type="RayCast2D" parent="EnemyDetect"]
+rotation = -1.5708
+
+[node name="AttackDetect" type="Node2D" parent="."]
+
+[node name="AttackRayCast" type="RayCast2D" parent="AttackDetect"]
+rotation = -1.5708
+
+[node name="FriendDetect" type="Node2D" parent="."]
+
+[node name="FriendRayCast" type="RayCast2D" parent="FriendDetect"]
+rotation = -1.5708
+collision_mask = 2
+
+[node name="TestAttackTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[connection signal="timeout" from="TestAttackTimer" to="." method="_on_test_attack_timer_timeout"]

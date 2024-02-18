@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://klas5yn84bpo"]
+
+[ext_resource type="Texture2D" uid="uid://dpovclc3gpva4" path="res://assets/unit/soldier1_gun.png" id="1_p3sk0"]
+[ext_resource type="Script" path="res://scenes/unit_button/unit_button.gd" id="2_grahi"]
+
+[node name="UnitButton" type="TextureButton"]
+offset_right = 40.0
+offset_bottom = 40.0
+texture_normal = ExtResource("1_p3sk0")
+texture_pressed = ExtResource("1_p3sk0")
+script = ExtResource("2_grahi")
+
+[node name="DisabledButtonTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[connection signal="button_down" from="." to="." method="_on_button_down"]
+[connection signal="timeout" from="DisabledButtonTimer" to="." method="_on_disabled_button_timer_timeout"]

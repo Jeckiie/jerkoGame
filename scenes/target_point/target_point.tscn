@@ -1,0 +1,4 @@
+[gd_scene format=3 uid="uid://ub5ucebd3bhi"]
+
+[node name="TargetPoint" type="Marker2D" groups=["friendlyTarget"]]
+position = Vector2(343, 40)

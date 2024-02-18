@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://4vxl03qqmggr"]
+
+[ext_resource type="PackedScene" uid="uid://d1s4f151qyvjh" path="res://scenes/unit/unit.tscn" id="1_mhbvb"]
+
+[node name="FriendUnit" groups=["friend"] instance=ExtResource("1_mhbvb")]

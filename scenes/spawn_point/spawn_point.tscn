@@ -1,0 +1,4 @@
+[gd_scene format=3 uid="uid://dn40aixqi8jxo"]
+
+[node name="SpawnPoint" type="Marker2D"]
+position = Vector2(350, 1100)

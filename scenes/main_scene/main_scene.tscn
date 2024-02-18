@@ -1,0 +1,96 @@
+[gd_scene load_steps=7 format=3 uid="uid://cn8kfjtjeo2no"]
+
+[ext_resource type="PackedScene" uid="uid://c87g1pwcmg3fk" path="res://scenes/DeploymentUI/deployment_ui.tscn" id="1_gi2j1"]
+[ext_resource type="Script" path="res://scenes/main_scene/main_scene.gd" id="1_x4863"]
+[ext_resource type="PackedScene" uid="uid://ub5ucebd3bhi" path="res://scenes/target_point/target_point.tscn" id="2_n6l3a"]
+[ext_resource type="PackedScene" uid="uid://dn40aixqi8jxo" path="res://scenes/spawn_point/spawn_point.tscn" id="3_r46qd"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_xyenq"]
+vertices = PackedVector2Array(489, 1178, 214, 1178, 208, 5, 491, 5)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(198, -5, 204, 1188, 499, 1188, 501, -5)])
+source_geometry_group_name = &"navigation_polygon_source_group"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_erqoj"]
+size = Vector2(29, 26)
+
+[node name="MainScene" type="Node2D"]
+script = ExtResource("1_x4863")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_xyenq")
+
+[node name="TargetPoint" parent="." instance=ExtResource("2_n6l3a")]
+
+[node name="SpawnPoint" parent="." groups=["friendlySpawn"] instance=ExtResource("3_r46qd")]
+
+[node name="FriendlyUnits" type="Node2D" parent="." groups=["friendlyUnits"]]
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="MCTest" type="MarginContainer" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 4
+theme_override_constants/margin_left = 100
+
+[node name="HB" type="HBoxContainer" parent="CanvasLayer/MCTest"]
+layout_mode = 2
+theme_override_constants/separation = 300
+
+[node name="Path1" type="ColorRect" parent="CanvasLayer/MCTest/HB"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+color = Color(0, 0.733333, 0.733333, 1)
+
+[node name="Path2" type="ColorRect" parent="CanvasLayer/MCTest/HB"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+color = Color(0, 0.733333, 0.733333, 1)
+
+[node name="DeploymentUI" parent="CanvasLayer" instance=ExtResource("1_gi2j1")]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." groups=["enemy"]]
+position = Vector2(411, 303)
+
+[node name="ColorRect" type="ColorRect" parent="StaticBody2D"]
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 19.0
+offset_bottom = 16.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(4.5, 3)
+shape = SubResource("RectangleShape2D_erqoj")
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="." groups=["enemy"]]
+position = Vector2(270, 147)
+
+[node name="ColorRect" type="ColorRect" parent="StaticBody2D2"]
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 19.0
+offset_bottom = 16.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2"]
+position = Vector2(4.5, 3)
+shape = SubResource("RectangleShape2D_erqoj")
+
+[node name="StaticBody2D3" type="StaticBody2D" parent="." groups=["enemy"]]
+position = Vector2(276, 486)
+
+[node name="ColorRect" type="ColorRect" parent="StaticBody2D3"]
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 19.0
+offset_bottom = 16.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D3"]
+position = Vector2(4.5, 3)
+shape = SubResource("RectangleShape2D_erqoj")

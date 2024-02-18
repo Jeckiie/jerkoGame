@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://68d8am76odhp"]
+
+[ext_resource type="Texture2D" uid="uid://cbjvg8cfmvnq3" path="res://assets/unit/survivor1_gun.png" id="1_d8422"]
+[ext_resource type="Script" path="res://scenes/enemy/enemy.gd" id="1_iyl1t"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_k7vtt"]
+radius = 15.1327
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_l53pu"]
+radius = 80.0
+
+[node name="Enemy" type="CharacterBody2D" groups=["enemy"]]
+collision_mask = 3
+script = ExtResource("1_iyl1t")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_d8422")
+offset = Vector2(10, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_k7vtt")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+path_desired_distance = 30.0
+target_desired_distance = 50.0
+radius = 20.0
+neighbor_distance = 50.0
+max_speed = 70.0
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CircleShape2D_l53pu")
+
+[connection signal="velocity_computed" from="NavigationAgent2D" to="." method="_on_navigation_agent_2d_velocity_computed"]
+[connection signal="area_entered" from="Area2D" to="." method="_on_area_2d_area_entered"]
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]

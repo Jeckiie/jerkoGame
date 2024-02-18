@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=3 uid="uid://c87g1pwcmg3fk"]
+
+[ext_resource type="PackedScene" uid="uid://klas5yn84bpo" path="res://scenes/unit_button/unit_button.tscn" id="1_p6rwu"]
+
+[node name="DeploymentUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+offset_right = 720.0
+grow_vertical = 0
+color = Color(0.513726, 0, 0.517647, 0.941176)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+offset_right = 124.0
+grow_vertical = 0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 20
+
+[node name="UnitButton" parent="MarginContainer/HBoxContainer" instance=ExtResource("1_p6rwu")]
+layout_mode = 2
+
+[node name="UnitButton2" parent="MarginContainer/HBoxContainer" instance=ExtResource("1_p6rwu")]
+layout_mode = 2
