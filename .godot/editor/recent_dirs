@@ -1,0 +1,9 @@
+res://scenes/unit
+res://scenes/unit/enemy
+res://scenes/unit/friendly
+res://scenes/enemy
+res://scenes/target_point
+res://scenes/spawn_point
+res://scenes/unit_button
+res://scenes/DeploymentUI
+res://scenes/main_scene

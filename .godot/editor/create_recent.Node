@@ -1,0 +1,14 @@
+RayCast2D
+Node2D
+CollisionShape2D
+ColorRect
+StaticBody2D
+Label
+CharacterBody3D
+Timer
+Area2D
+Polygon2D
+NavigationObstacle2D
+NavigationAgent2D
+Sprite2D
+CharacterBody2D
