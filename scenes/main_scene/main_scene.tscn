@@ -24,9 +24,11 @@ navigation_polygon = SubResource("NavigationPolygon_xyenq")
 
 [node name="SpawnPoint" parent="." groups=["friendlySpawn"] instance=ExtResource("3_r46qd")]
 
-[node name="FriendlyUnits" type="Node2D" parent="." groups=["friendlyUnits"]]
+[node name="EnemyUnits" type="Node2D" parent="."]
+y_sort_enabled = true
 
-[node name="Enemies" type="Node2D" parent="."]
+[node name="FriendUnits" type="Node2D" parent="." groups=["friendlyUnits"]]
+y_sort_enabled = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -56,7 +58,8 @@ color = Color(0, 0.733333, 0.733333, 1)
 
 [node name="DeploymentUI" parent="CanvasLayer" instance=ExtResource("1_gi2j1")]
 
-[node name="StaticBody2D" type="StaticBody2D" parent="." groups=["enemy"]]
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+visible = false
 position = Vector2(411, 303)
 
 [node name="ColorRect" type="ColorRect" parent="StaticBody2D"]
@@ -68,8 +71,10 @@ offset_bottom = 16.0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
 position = Vector2(4.5, 3)
 shape = SubResource("RectangleShape2D_erqoj")
+disabled = true
 
-[node name="StaticBody2D2" type="StaticBody2D" parent="." groups=["enemy"]]
+[node name="StaticBody2D2" type="StaticBody2D" parent="."]
+visible = false
 position = Vector2(270, 147)
 
 [node name="ColorRect" type="ColorRect" parent="StaticBody2D2"]
@@ -81,8 +86,10 @@ offset_bottom = 16.0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2"]
 position = Vector2(4.5, 3)
 shape = SubResource("RectangleShape2D_erqoj")
+disabled = true
 
-[node name="StaticBody2D3" type="StaticBody2D" parent="." groups=["enemy"]]
+[node name="StaticBody2D3" type="StaticBody2D" parent="."]
+visible = false
 position = Vector2(276, 486)
 
 [node name="ColorRect" type="ColorRect" parent="StaticBody2D3"]
@@ -94,3 +101,4 @@ offset_bottom = 16.0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D3"]
 position = Vector2(4.5, 3)
 shape = SubResource("RectangleShape2D_erqoj")
+disabled = true

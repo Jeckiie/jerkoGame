@@ -3,25 +3,31 @@ extends CharacterBody2D
 class_name Unit
 
 @export_category("Movement")
-@export var SPEED: float = 100
+@export var SPEED: float = 100.0
 @export var MASS: int = 10
+@export var SLOW_DOWN_AREA: float = 200.0
+@export var MAX_AVOIDANCE_FORCE: float = 50.0
 @export var FRIEND_DETECTION_RANGE: float = 40.0
 @export_category("Battle")
 @export var DETECTION_RANGE: float = 200.0
 @export var RANGE: float = 40.0
-
-const OPPOSITE_GROUP: String = "enemy"
+@export var OPPOSITE_GROUP: String
+@export var MAX_HEALTH: int = 4
+@export var DAMAGE: int = 2
+@export var ATTACK_SPEED: int = 3
 
 @onready var navigation_agent_2d = $NavigationAgent2D
+@onready var animated_sprite_2d = $AnimatedSprite2D
 @onready var enemy_detect = $EnemyDetect
 @onready var detect_ray_cast = $EnemyDetect/DetectRayCast
-@onready var sprite_2d = $Sprite2D
 @onready var attack_detect = $AttackDetect
 @onready var attack_ray_cast = $AttackDetect/AttackRayCast
 @onready var friend_detect = $FriendDetect
 @onready var friend_ray_cast = $FriendDetect/FriendRayCast
-@onready var test_attack_timer = $TestAttackTimer
+@onready var attack_timer = $AttackTimer
+@onready var health_bar = $HealthBar
 
+var _enemy_collider: CharacterBody2D # enemy that should be attacked
 var _closest_enemy: Node
 var _distance_to_closest_enemy: float = 9999.0
 var _closest_friend: Node
@@ -30,16 +36,20 @@ var _is_attacking: bool = false
 var _target: Vector2
 
 func _ready():
-	var rng = RandomNumberGenerator.new()
-	test_attack_timer.wait_time = rng.randi_range(1, 3)
+	attack_timer.wait_time = ATTACK_SPEED
+	health_bar.set_max_health(MAX_HEALTH)
 	detect_ray_cast.target_position = Vector2(0, DETECTION_RANGE)
 	attack_ray_cast.target_position = Vector2(0, RANGE)
 	friend_ray_cast.target_position = Vector2(0, FRIEND_DETECTION_RANGE)
+	animated_sprite_2d.play("idle0")
+	SignalManager.on_unit_hit.connect(on_unit_hit)
 
 func _physics_process(_delta):
 	raycast_to_enemy()
 	raycast_to_friend()
 	update_navigation()
+	update_animation(_is_attacking)
+	#print("velocityX: %.3f" % (velocity.x + velocity.y))
 
 func setup_unit(spawn_location: Vector2, target_location: Vector2) -> void:
 	global_position = spawn_location
@@ -47,15 +57,6 @@ func setup_unit(spawn_location: Vector2, target_location: Vector2) -> void:
 	set_new_target(_target)
 
 func update_navigation() -> void:
-	#if navigation_agent_2d.is_navigation_finished() == false:
-		#var mouse = get_global_mouse_position()
-		#navigation_agent_2d.target_position = mouse
-		#sprite_2d.look_at(mouse)
-		#
-		##velocity = global_position.direction_to(navigation_agent_2d.target_position) * SPEED
-		#move_and_slide()
-		
-		
 	if _is_attacking:
 		return
 	attack_if_enemy_in_range()
@@ -67,13 +68,7 @@ func update_navigation() -> void:
 		set_new_target(_target)
 	if navigation_agent_2d.is_navigation_finished() == false:
 		calculate_velocity()
-#		velocity = global_position.direction_to(navigation_agent_2d.target_position) * SPEED
 		move_and_slide()
-
-func truncate(vector: Vector2, max_value: float) -> Vector2:
-	var i = max_value / vector.length()
-	i = min(i, 1.0)
-	return vector * i
 
 func raycast_to_enemy() -> void:
 	set_closest_enemy()
@@ -93,21 +88,23 @@ func raycast_to_friend() -> void:
 
 func set_new_target(new_target: Vector2) -> void:
 	navigation_agent_2d.target_position = new_target
-	#sprite_2d.look_at(navigation_agent_2d.target_position)
 
 func set_closest_enemy() -> void:
+	# this if condition is just placeholder, fix this later. When enemy is killed, distance should
+	# be reset to 9999.0
+	if navigation_agent_2d.target_position == _target: 
+		_distance_to_closest_enemy = 9999.0
 	if _closest_enemy != null:
 		if enemy_got_out_of_range():
 			_closest_enemy = null
 			_distance_to_closest_enemy = 9999.0
-		else:
-			return
 	var enemies = get_tree().get_nodes_in_group(OPPOSITE_GROUP)
 	for enemy in enemies:
 		var distance_to_enemy = global_position.distance_to(enemy.global_position)
 		if (distance_to_enemy < _distance_to_closest_enemy):
 			_distance_to_closest_enemy = distance_to_enemy
 			_closest_enemy = enemy
+
 
 func set_closest_friend() -> void:
 	if _closest_friend != null:
@@ -137,61 +134,77 @@ func friend_got_out_of_range() -> bool:
 	return false
 
 func attack_if_enemy_in_range() -> void:
-	var collider = attack_ray_cast.get_collider()
-	if collider != null and collider.is_in_group(OPPOSITE_GROUP):
+	_enemy_collider = attack_ray_cast.get_collider()
+	if _enemy_collider != null and _enemy_collider.is_in_group(OPPOSITE_GROUP):
+		AnimationManager.animate_attack(animated_sprite_2d, velocity)
 		_is_attacking = true
-		velocity = Vector2.ZERO
-		test_attack_timer.start()
+		attack_timer.start()
 
 func calculate_velocity() -> void:
 	var steering: Vector2 = Vector2.ZERO
-	steering = steering + get_seek_steering()
+	var group: String = get_groups()[0]
+	steering = steering + MovementManager.get_seek_steering(navigation_agent_2d, self, SPEED, SLOW_DOWN_AREA)
 	#steering = steering + get_flee_steering()
-	steering = steering + get_collision_avoidance_steering()
+	steering = steering + MovementManager.get_collision_avoidance_steering(friend_ray_cast, self,
+						 				group, FRIEND_DETECTION_RANGE, MAX_AVOIDANCE_FORCE)
 	steering = steering / MASS
-	rotate_sprite()
 	velocity = truncate(velocity + steering, SPEED)
 
-func get_collision_avoidance_steering() -> Vector2:
-	var collider = friend_ray_cast.get_collider()
-	if collider != null and collider.is_in_group(get_groups()[0]):
-		#var dynamic_length: float = velocity.length() / SPEED
-		var ahead = global_position + velocity.normalized() * FRIEND_DETECTION_RANGE #* dynamic_length
-		var avoidance_force: Vector2 = ahead - collider.global_position
-		# TODO: MAX AVOIDANCE FORCE - EXPORT VARIABLE
-		avoidance_force = avoidance_force.normalized() * 50
-		return avoidance_force
-	else:
-		return Vector2.ZERO
+func truncate(vector: Vector2, max_value: float) -> Vector2:
+	var i = max_value / vector.length()
+	i = min(i, 1.0)
+	return vector * i
 
+func update_animation(attacking: bool) -> void:
+	#sprite_2d.rotation = velocity.angle()
+	#if velocity.angle() == 0:
+		#sprite_2d.look_at(navigation_agent_2d.target_position)
+	if !attacking:
+		AnimationManager.animate_character(animated_sprite_2d, velocity)
 
-#func get_flee_steering() -> Vector2:
+func take_damage(damage: float) -> void:
+	var is_dead: bool = health_bar.reduce_health(damage)
+	if is_dead:
+		queue_free()
+
+#signal from signal manager
+func on_unit_hit(damage: int, character: CharacterBody2D) -> void:
+	if character != null and self == character:
+		take_damage(damage)
+
+func _on_animated_sprite_2d_animation_finished():
+	var current_animation: String = animated_sprite_2d.animation
+	if current_animation.begins_with("attack"):
+		AnimationManager.animate_idle(animated_sprite_2d, velocity)
+		if _enemy_collider != null:
+			SignalManager.on_unit_hit.emit(DAMAGE, _enemy_collider)
+			if _enemy_collider.health_bar.value <= 0:
+				attack_timer.stop()
+				attack_timer.emit_signal("timeout")
+
+func _on_attack_timer_timeout():
+	_is_attacking = false
+		#if _closest_enemy != null:
+	#	_closest_enemy.queue_free()
+
+#func get_collision_avoidance_steering() -> Vector2:
 	#var collider = friend_ray_cast.get_collider()
 	#if collider != null and collider.is_in_group(get_groups()[0]):
-		#var desired_velocity: Vector2 = global_position - collider.global_position 
-		#desired_velocity = desired_velocity.normalized() * SPEED
-		#return desired_velocity - velocity
+		##var dynamic_length: float = velocity.length() / SPEED
+		#var ahead = global_position + velocity.normalized() * FRIEND_DETECTION_RANGE #* dynamic_length
+		#var avoidance_force: Vector2 = ahead - collider.global_position
+		#avoidance_force = avoidance_force.normalized() * MAX_AVOIDANCE_FORCE
+		#return avoidance_force
 	#else:
 		#return Vector2.ZERO
-
-func get_seek_steering() -> Vector2:
-	var desired_velocity: Vector2 = navigation_agent_2d.target_position - global_position
-	var distance = desired_velocity.length()
-	# TODO: AREA SLOW DOWN - EXPORT VARIABLE
-	if distance < 200:
-		desired_velocity = desired_velocity.normalized() * SPEED * (distance / 200)
-	else:
-		desired_velocity = desired_velocity.normalized() * SPEED
-	return desired_velocity - velocity
-
-func rotate_sprite() -> void:
-	sprite_2d.rotation = velocity.angle()
-	if velocity.angle() == 0:
-		sprite_2d.look_at(navigation_agent_2d.target_position)
-
-func _on_test_attack_timer_timeout():
-	#_is_attacking = false
-	#if _closest_enemy != null:
-		#_closest_enemy.queue_free()
-	pass
+#
+#func get_seek_steering() -> Vector2:
+	#var desired_velocity: Vector2 = navigation_agent_2d.target_position - global_position
+	#var distance = desired_velocity.length()
+	## TODO: AREA SLOW DOWN - EXPORT VARIABLE
+	#if distance < 200:
+		#desired_velocity = desired_velocity.normalized() * SPEED * (distance / 200)
+	#else:
+		#desired_velocity = desired_velocity.normalized() * SPEED
+	#return desired_velocity - velocity
 

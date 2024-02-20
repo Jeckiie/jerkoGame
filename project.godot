@@ -15,6 +15,10 @@ run/main_scene="res://scenes/main_scene/main_scene.tscn"
 config/features=PackedStringArray("4.2", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+SignalManager="*res://singletons/signal_manager.gd"
+
 [display]
 
 window/size/viewport_width=720
@@ -50,7 +54,7 @@ pointing/emulate_touch_from_mouse=true
 
 2d_physics/layer_1="enemy"
 2d_navigation/layer_1="enemy"
-2d_physics/layer_2="friendly"
+2d_physics/layer_2="friend"
 2d_navigation/layer_2="friendly"
 
 [rendering]

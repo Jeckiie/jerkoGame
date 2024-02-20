@@ -1,5 +1,8 @@
-res://scenes/unit
+res://singletons
+res://assets/HealthBar
+res://scenes/health_bar
 res://scenes/unit/enemy
+res://scenes/unit
 res://scenes/unit/friendly
 res://scenes/enemy
 res://scenes/target_point
